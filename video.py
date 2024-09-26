@@ -1,4 +1,3 @@
-
 from djitellopy import tello
 import cv2
 import threading
@@ -20,4 +19,15 @@ tello = tello.Tello()
 tello.connect()
 tello.streamoff()
 tello.streamon()
-video(tello)
+
+
+t2 = threading.Thread(target=video, args=(tello,))
+t1= threading.Thread(target=routine, args=(tello,))
+
+
+t2.start()
+
+#join method makes it so it finished both threads before moving onto code under it
+#t1.join()
+#t2.join ()
+
