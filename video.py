@@ -5,7 +5,7 @@ import threading
 def video(drone):
     while True:
         img = drone.get_frame_read().frame
-        cv2.imshow('img', img)
+        cv2.imshow('Capture', img)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
     cv2.destroyAllWindows()
