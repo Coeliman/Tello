@@ -26,7 +26,7 @@ t1= threading.Thread(target=routine, args=(tello,))
 
 
 t2.start()
-
+#t1.start() # only call if you wish to make it fly while doing video
 #join method makes it so it finished both threads before moving onto code under it
 #t1.join()
 #t2.join ()
