@@ -1,5 +1,3 @@
-from ctypes.wintypes import tagSIZE
-
 import numpy as np
 import cv2
 aruco_type = cv2.aruco.DICT_4X4_1000
