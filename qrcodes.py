@@ -1,10 +1,13 @@
 import numpy as np
 import cv2
+from cv2 import aruco
 aruco_type = cv2.aruco.DICT_4X4_1000
 arucoid = 1
 cam = cv2.VideoCapture(0)
 var = False
 # false is camera, true is arcouid
+draw = True
+#do we wanna draw
 arucoDict = cv2.aruco.getPredefinedDictionary(aruco_type)
 tag_size  = 1000
 tag = np.zeros((tag_size, tag_size,1), dtype=np.uint8)
@@ -20,6 +23,8 @@ def FindAruco(imag,markerSize=4,total_markers=1000,draw=True):
     arucoParam = cv2.aruco.DetectorParameters()
     bbox,ids,_=cv2.aruco.detectMarkers(gray,arucoDict,parameters=arucoParam)
     print(ids)
+    if draw:
+        aruco.drawDetectedMarkers(img,bbox)
 
 
 while True:
