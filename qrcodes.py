@@ -4,6 +4,7 @@ aruco_type = cv2.aruco.DICT_4X4_1000
 arucoid = 1
 cam = cv2.VideoCapture(0)
 var = False
+# false is camera, true is arcouid
 arucoDict = cv2.aruco.getPredefinedDictionary(aruco_type)
 tag_size  = 1000
 tag = np.zeros((tag_size, tag_size,1), dtype=np.uint8)
@@ -22,12 +23,13 @@ def FindAruco(imag,markerSize=4,total_markers=1000,draw=True):
 
 
 while True:
-    if var == True:
+    if var:
       img=tag
       img = cv2.resize(img,(0,0),fx=0.7,fy=0.7)
     else:
         _,img=cam.read()
-    FindAruco(img)
+    if not var:
+        FindAruco(img)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
     cv2.imshow("Camera",img)
