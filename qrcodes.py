@@ -24,7 +24,7 @@ def FindAruco(imag,markerSize=4,total_markers=1000,draw=True):
     bbox,ids,_=cv2.aruco.detectMarkers(gray,arucoDict,parameters=arucoParam)
     print(ids)
     if draw:
-        aruco.drawDetectedMarkers(img,bbox)
+        aruco.drawDetectedMarkers(img,bbox,ids)
 
 
 while True:
