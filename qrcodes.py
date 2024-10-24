@@ -25,6 +25,7 @@ def FindAruco(imag,markerSize=4,total_markers=1000,draw=True):
     print(ids)
     if draw:
         aruco.drawDetectedMarkers(img,bbox,ids)
+        print(bbox)
 
 
 while True:
@@ -38,5 +39,6 @@ while True:
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
     cv2.imshow("Camera",img)
+
 cv2.waitKey(0)
 cv2.destroyAllWindows()
