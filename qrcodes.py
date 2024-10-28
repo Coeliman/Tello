@@ -22,10 +22,13 @@ def FindAruco(imag,markerSize=4,total_markers=1000,draw=True):
     arucoDict= cv2.aruco.getPredefinedDictionary(key)
     arucoParam = cv2.aruco.DetectorParameters()
     bbox,ids,_=cv2.aruco.detectMarkers(gray,arucoDict,parameters=arucoParam)
-    print(ids)
+    print(bbox)
     if draw:
         aruco.drawDetectedMarkers(img,bbox,ids)
-        print(bbox)
+    #center box coords x,y
+    x = (bbox[0][0][0][0] + bbox[1][0][1][0] + bbox[2][0][2][0] + bbox[3][0][3][0])/ 4
+    y = (bbox[0][0][0][1] + bbox[1][0][1][1] + bbox[2][0][2][1] + bbox[3][0][3][1])/ 4
+
 
 
 while True:
