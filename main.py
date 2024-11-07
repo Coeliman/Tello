@@ -14,7 +14,7 @@ tello.streamoff()
 tello.streamon()
 #tello connection
 
-def FindAruco(imag,markerSize=4,total_markers=1000,draw=True):
+def FindAruco2(imag,markerSize=4,total_markers=1000,draw=True):
     gray=cv2.cvtColor(imag,cv2.COLOR_BGR2GRAY)
     key = getattr(cv2.aruco,f'DICT_{markerSize}X{markerSize}_{total_markers}')
     arucoDict= cv2.aruco.getPredefinedDictionary(key)
