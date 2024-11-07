@@ -21,13 +21,22 @@ def FindAruco(imag,markerSize=4,total_markers=1000,draw=True):
     key = getattr(cv2.aruco,f'DICT_{markerSize}X{markerSize}_{total_markers}')
     arucoDict= cv2.aruco.getPredefinedDictionary(key)
     arucoParam = cv2.aruco.DetectorParameters()
-    bbox,ids,_=cv2.aruco.detectMarkers(gray,arucoDict,parameters=arucoParam)
-    print(bbox)
+    corners,ids,_=cv2.aruco.detectMarkers(gray,arucoDict,parameters=arucoParam)
+    #print(corners)
     if draw:
-        aruco.drawDetectedMarkers(img,bbox,ids)
+        aruco.drawDetectedMarkers(img,corners,ids)
     #center box coords x,y
-    x = (bbox[0][0][0][0] + bbox[1][0][1][0] + bbox[2][0][2][0] + bbox[3][0][3][0])/ 4
-    y = (bbox[0][0][0][1] + bbox[1][0][1][1] + bbox[2][0][2][1] + bbox[3][0][3][1])/ 4
+    global x
+    global y
+    x = "N"
+    y = "N"
+    for i in range(len(corners)):
+        x = (corners[i - 1][0][0][0] + corners[i - 1][0][1][0] + corners[i - 1][0][2][0] + corners[i - 1][0][3][0]) / 4
+        y = (corners[i - 1][0][0][1] + corners[i - 1][0][1][1] + corners[i - 1][0][2][1] + corners[i - 1][0][3][1]) / 4
+    print(f"Corners : {corners}")
+    print(f"XY Coordinates : {x},{y}")
+
+
 
 
 
