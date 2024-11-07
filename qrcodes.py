@@ -19,14 +19,32 @@ tag_name = f"arucoMarkers/" + str(aruco_type) + f"_" + str(arucoid) + f".png"
 cv2.imwrite(tag_name,tag)
 #aruco,tag is the aruco tag
 
-def ScreenSplitCords(imag):
+def ScreenSplitLines(imag):
     size_info = imag.shape
+    print(size_info)
+    #maybe Y,X? Don't know, figure out exactly what its passing
     ScreenX = int(size_info[0])
     ScreenY = int(size_info[1])
     ScreenX_Half = int(ScreenX / 2)
     ScreenY_Half = int(ScreenY / 2)
+    print(f"X End: {ScreenX} X Half: {ScreenX_Half} Y End: {ScreenY} Y Half: {ScreenY_Half}")
     cv2.line(img, (ScreenX_Half, 0), (ScreenX_Half, ScreenY), (0, 255, 0), 5)
+    #cv2.line(img,(ScreenX,0),(ScreenX,ScreenY),(0,255,0),5)
+    #cv2.line(img,(ScreenY,0),(ScreenY,ScreenX),(0,255,0),5)
     cv2.line(img, (0, ScreenY_Half), (ScreenX, ScreenY_Half), (255, 0, 0), 5)
+
+def CoordMath(bbox):
+    global x
+    global y
+    x = "N"
+    y = "N"
+    for i in range(len(bbox)):
+        x = (bbox[i - 1][0][0][0] + bbox[i - 1][0][1][0] + bbox[i - 1][0][2][0] + bbox[i - 1][0][3][0]) / 4
+        y = (bbox[i - 1][0][0][1] + bbox[i - 1][0][1][1] + bbox[i - 1][0][2][1] + bbox[i - 1][0][3][1]) / 4
+
+def DrawAruco(cam,crn,id):
+    ScreenSplitLines(cam)
+    aruco.drawDetectedMarkers(cam,crn,id)
 
 def FindAruco(imag,markerSize=4,total_markers=1000,draw=True):
     global gray,key,arucoDict,arucoParam,corners,ids
@@ -36,20 +54,14 @@ def FindAruco(imag,markerSize=4,total_markers=1000,draw=True):
     arucoParam = cv2.aruco.DetectorParameters()
     corners,ids,_=cv2.aruco.detectMarkers(gray,arucoDict,parameters=arucoParam)
     #print(corners)
-    ScreenSplitCords(imag)
+
+    CoordMath(corners)
     if draw:
-        aruco.drawDetectedMarkers(img,corners,ids)
+        DrawAruco(img,corners,ids)
 
 
 
    #The coord stuff with the aruco
-    global x
-    global y
-    x = "N"
-    y = "N"
-    for i in range(len(corners)):
-        x = (corners[i - 1][0][0][0] + corners[i - 1][0][1][0] + corners[i - 1][0][2][0] + corners[i - 1][0][3][0]) / 4
-        y = (corners[i - 1][0][0][1] + corners[i - 1][0][1][1] + corners[i - 1][0][2][1] + corners[i - 1][0][3][1]) / 4
 
 
 
