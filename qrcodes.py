@@ -30,7 +30,12 @@ def ScreenSplitLines(imag):
     print(f"X End: {ScreenX} X Half: {ScreenX_Half} Y End: {ScreenY} Y Half: {ScreenY_Half}")
     cv2.line(img, (ScreenX_Half, 0), (ScreenX_Half, ScreenY), (0, 255, 0), 5)
     cv2.line(img, (0, ScreenY_Half), (ScreenX, ScreenY_Half), (255, 0, 0), 5)
-
+    #creates thresholds for drone turning
+    global thresholdRX,thresholdLX,thresholdRY,thresholdLY
+    thresholdRX = ScreenX_Half + 50
+    thresholdLX = ScreenX_Half - 50
+    thresholdRY = ScreenY_Half + 50
+    thresholdLY = ScreenY_Half - 50
 def CoordMath(bbox):
     global x
     global y
