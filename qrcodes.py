@@ -23,14 +23,12 @@ def ScreenSplitLines(imag):
     size_info = imag.shape
     print(size_info)
     #maybe Y,X? Don't know, figure out exactly what its passing
-    ScreenX = int(size_info[0])
-    ScreenY = int(size_info[1])
+    ScreenX = int(size_info[1])
+    ScreenY = int(size_info[0])
     ScreenX_Half = int(ScreenX / 2)
     ScreenY_Half = int(ScreenY / 2)
     print(f"X End: {ScreenX} X Half: {ScreenX_Half} Y End: {ScreenY} Y Half: {ScreenY_Half}")
     cv2.line(img, (ScreenX_Half, 0), (ScreenX_Half, ScreenY), (0, 255, 0), 5)
-    #cv2.line(img,(ScreenX,0),(ScreenX,ScreenY),(0,255,0),5)
-    #cv2.line(img,(ScreenY,0),(ScreenY,ScreenX),(0,255,0),5)
     cv2.line(img, (0, ScreenY_Half), (ScreenX, ScreenY_Half), (255, 0, 0), 5)
 
 def CoordMath(bbox):
@@ -58,17 +56,7 @@ def FindAruco(imag,markerSize=4,total_markers=1000,draw=True):
     CoordMath(corners)
     if draw:
         DrawAruco(img,corners,ids)
-
-
-
    #The coord stuff with the aruco
-
-
-
-
-
-
-
 while True:
     _,img=cam.read()
     FindAruco(img)
