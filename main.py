@@ -1,12 +1,20 @@
 import numpy as np
 import cv2
 from cv2 import aruco
+import djitellopy as tello
 import threading
 
-
+tello = tello.Tello()
+tello.connect()
+tello.streamoff()
+tello.streamon()
 aruco_type = cv2.aruco.DICT_4X4_1000
 arucoid = 1
-cam = cv2.VideoCapture(0)
+useDrone = True
+if useDrone:
+    cam = tello.get_frame_read().frame
+else:
+    cam = cv2.VideoCapture(0)
 var = False
 # false is camera, true is arcouid
 draw = True
@@ -31,11 +39,11 @@ def ScreenSplitLines(imag):
     cv2.line(img, (ScreenX_Half, 0), (ScreenX_Half, ScreenY), (0, 255, 0), 5)
     cv2.line(img, (0, ScreenY_Half), (ScreenX, ScreenY_Half), (255, 0, 0), 5)
     #creates thresholds for drone turning
-    global thresholdRX,thresholdLX,thresholdRY,thresholdLY
+    global thresholdRX,thresholdLX,thresholdUY,thresholdBY
     thresholdRX = ScreenX_Half + 50
     thresholdLX = ScreenX_Half - 50
-    thresholdRY = ScreenY_Half + 50
-    thresholdLY = ScreenY_Half - 50
+    thresholdUY = ScreenY_Half + 50
+    thresholdBY = ScreenY_Half - 50
 def CoordMath(bbox):
     global x
     global y
@@ -48,7 +56,11 @@ def CoordMath(bbox):
 def DrawAruco(cam,crn,id):
     ScreenSplitLines(cam)
     aruco.drawDetectedMarkers(cam,crn,id)
-
+def DroneController():
+    if thresholdRX <= x:
+        tello.rotate_clockwise(10)
+    elif thresholdLX >= x:
+        tello.rotate_counter_clockwise(10)
 def FindAruco(imag,markerSize=4,total_markers=1000,draw=True):
     global gray,key,arucoDict,arucoParam,corners,ids
     gray=cv2.cvtColor(imag,cv2.COLOR_BGR2GRAY)
