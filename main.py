@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 from cv2 import aruco
 import djitellopy as tello
+import atexit
 import threading
 
 tello = tello.Tello()
@@ -26,7 +27,9 @@ cv2.aruco.generateImageMarker(arucoDict,arucoid,tag_size,tag,1)
 tag_name = f"arucoMarkers/" + str(aruco_type) + f"_" + str(arucoid) + f".png"
 cv2.imwrite(tag_name,tag)
 #aruco,tag is the aruco tag
-
+def EXIT():
+    tello.land()
+    cv2.destroyAllWindows()
 def ScreenSplitLines(imag):
     size_info = imag.shape
     print(size_info)
@@ -85,6 +88,8 @@ while True:
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
     cv2.imshow("Camera",img)
+    DroneController()
 
 cv2.waitKey(0)
 cv2.destroyAllWindows()
+atexit.register(EXIT)
