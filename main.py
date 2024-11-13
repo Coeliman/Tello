@@ -60,10 +60,14 @@ def DrawAruco(cam,crn,id):
     ScreenSplitLines(cam)
     aruco.drawDetectedMarkers(cam,crn,id)
 def DroneController():
-    if thresholdRX <= x:
-        tello.rotate_clockwise(10)
-    elif thresholdLX >= x:
-        tello.rotate_counter_clockwise(10)
+    if x or y == int:
+
+        if thresholdRX <= x:
+            tello.rotate_clockwise(10)
+        elif thresholdLX >= x:
+            tello.rotate_counter_clockwise(10)
+    else:
+        pass
 def FindAruco(imag,markerSize=4,total_markers=1000,draw=True):
     global gray,key,arucoDict,arucoParam,corners,ids
     gray=cv2.cvtColor(imag,cv2.COLOR_BGR2GRAY)
@@ -77,8 +81,12 @@ def FindAruco(imag,markerSize=4,total_markers=1000,draw=True):
     if draw:
         DrawAruco(img,corners,ids)
    #The coord stuff with the aruco
+tello.takeoff()
 while True:
-    _,img=cam.read()
+    if useDrone == False:
+        _,img=cam.read()
+    else:
+        img = cam
     FindAruco(img)
     #thread_ScreenSplit = threading.Thread(target=ScreenSplitCords, args=(img,))
     #thread_Find = threading.Thread(target = FindAruco,args = (img,))
@@ -93,3 +101,4 @@ while True:
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 atexit.register(EXIT)
+
