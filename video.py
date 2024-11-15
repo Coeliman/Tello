@@ -22,7 +22,7 @@ tello.streamon()
 
 
 t2 = threading.Thread(target=video, args=(tello,))
-t1= threading.Thread(target=routine, args=(tello,))
+#t1= threading.Thread(target=routine, args=(tello,))
 
 
 t2.start()

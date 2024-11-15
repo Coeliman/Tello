@@ -13,7 +13,7 @@ aruco_type = cv2.aruco.DICT_4X4_1000
 arucoid = 1
 useDrone = True
 if useDrone:
-    cam = tello.get_frame_read().frame
+    pass
 else:
     cam = cv2.VideoCapture(0)
 var = False
@@ -32,13 +32,13 @@ def EXIT():
     cv2.destroyAllWindows()
 def ScreenSplitLines(imag):
     size_info = imag.shape
-    print(size_info)
+    #print(size_info)
     #maybe Y,X? Don't know, figure out exactly what its passing
     ScreenX = int(size_info[1])
     ScreenY = int(size_info[0])
     ScreenX_Half = int(ScreenX / 2)
     ScreenY_Half = int(ScreenY / 2)
-    print(f"X End: {ScreenX} X Half: {ScreenX_Half} Y End: {ScreenY} Y Half: {ScreenY_Half}")
+    #print(f"X End: {ScreenX} X Half: {ScreenX_Half} Y End: {ScreenY} Y Half: {ScreenY_Half}")
     cv2.line(img, (ScreenX_Half, 0), (ScreenX_Half, ScreenY), (0, 255, 0), 5)
     cv2.line(img, (0, ScreenY_Half), (ScreenX, ScreenY_Half), (255, 0, 0), 5)
     #creates thresholds for drone turning
@@ -60,7 +60,7 @@ def DrawAruco(cam,crn,id):
     ScreenSplitLines(cam)
     aruco.drawDetectedMarkers(cam,crn,id)
 def DroneController():
-    if x or y == int:
+    if x and y == int:
 
         if thresholdRX <= x:
             tello.rotate_clockwise(10)
@@ -85,7 +85,8 @@ tello.takeoff()
 while True:
     if useDrone == False:
         _,img=cam.read()
-    else:
+    elif useDrone == True:
+        cam = tello.get_frame_read().frame
         img = cam
     FindAruco(img)
     #thread_ScreenSplit = threading.Thread(target=ScreenSplitCords, args=(img,))
@@ -98,7 +99,6 @@ while True:
     cv2.imshow("Camera",img)
     DroneController()
 
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-atexit.register(EXIT)
+if cv2.waitKey(0):
+    EXIT()
 
