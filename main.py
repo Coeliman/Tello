@@ -88,6 +88,8 @@ while True:
         cam = tello.get_frame_read().frame
         img = cam
     FindAruco(img)
+    #prints acceleration
+    print(f"Acceleration X:{tello.get_acceleration_x()}, Y:{tello.get_acceleration_y()}, Z: {tello.get_acceleration_z()}")
     #thread_ScreenSplit = threading.Thread(target=ScreenSplitCords, args=(img,))
     #thread_Find = threading.Thread(target = FindAruco,args = (img,))
 
