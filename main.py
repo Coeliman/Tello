@@ -102,4 +102,3 @@ while True:
 
 if cv2.waitKey(0):
     EXIT()
-
