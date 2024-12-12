@@ -13,6 +13,9 @@ async def routine(drone):
     print("routine")
     drone.takeoff()
     drone.move_forward(20)
+    print('pre')
+    asyncio.sleep(2)
+    print('post')
     drone.move_back(20)
     drone.land()
 tello = tello.Tello()
@@ -21,11 +24,11 @@ tello.streamoff()
 tello.streamon()
 
 
-t2 = threading.Thread(target=video, args=(tello,))
+asyncio.run(routine(tello))
 #t1= threading.Thread(target=routine, args=(tello,))
 
 
-t2.start()
+
 #t1.start() # only call if you wish to make it fly while doing video
 #join method makes it so it finished both threads before moving onto code under it
 #t1.join()

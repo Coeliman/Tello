@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 from cv2 import aruco
 import djitellopy as tello
-import threading
+import asyncio
 
 tello = tello.Tello()
 tello.connect()
@@ -12,7 +12,6 @@ aruco_type = cv2.aruco.DICT_4X4_1000
 arucoid = 1
 useDrone = True
 loopcount = 0
-TActive = False
 move = 0
 
 if useDrone:
@@ -30,41 +29,22 @@ cv2.aruco.generateImageMarker(arucoDict,arucoid,tag_size,tag,1)
 tag_name = f"arucoMarkers/" + str(aruco_type) + f"_" + str(arucoid) + f".png"
 cv2.imwrite(tag_name,tag)
 #aruco,tag is the aruco tag
-def is_even(num):
-    if num%2 == 0:
-        return True
-    else:
-        return False
-    loopcount += 1
-def AntiIdle():
-    global move
-    global TActive
-
-    if is_even(loopcount) == True:
+async def AntiIdle():
+    global loopcount
+    print('prewait')
+    await asyncio.sleep(5)
+    print('postwait')
+    if loopcount%2 == 0:
         print("MV_FWD SEND")
-        move = 1
-
-
+        tello.move_forward(5)
+        print("MV FWD CONF")
     else:
         print("MB_BWK SEND")
-        move = 2
-
-
-    timer = threading.Timer(5, AntiIdle)
-    timer.start()
-def Movement():
-    global move
-    if move ==1:
-        tello.move_forward(5)
-        move = 0
-        print("MV FWD CONF")
-    if move==2:
         tello.move_back(5)
-        move = 0
         print("MW BWK CONF")
-    else:
-        pass
-timer = threading.Timer(5,AntiIdle)
+    loopcount+=1
+
+
 def EXIT():
     tello.land()
     cv2.destroyAllWindows()
@@ -122,7 +102,7 @@ def FindAruco(imag,markerSize=4,total_markers=1000,draw=True):
         DrawAruco(img,corners,ids)
    #The coord stuff with the aruco
 tello.takeoff()
-timer.start()
+
 while True:
     if useDrone == False:
         _,img=cam.read()
@@ -132,19 +112,9 @@ while True:
     FindAruco(img)
     #prints acceleration
     DroneController()
-    Movement()
+    asyncio.run(AntiIdle())
 
-   # if loopcount%500000 == 0:
-   #     tello.move_forward(10)
-    #    tello.move_back(10)
-    #loopcount += 1
 
-    #thread_ScreenSplit = threading.Thread(target=ScreenSplitCords, args=(img,))
-    #thread_Find = threading.Thread(target = FindAruco,args = (img,))
-
-    #thread_Find.start()
-
-    #thread_ScreenSplit.start()
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
     cv2.imshow("Camera",img)
