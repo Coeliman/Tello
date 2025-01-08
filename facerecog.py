@@ -26,8 +26,8 @@ def ScreenSplitLines(imag):
     global thresholdRX,thresholdLX,thresholdUY,thresholdBY
     thresholdRX = ScreenX_Half + ScreenX*0.2
     thresholdLX = ScreenX_Half - ScreenX*0.2
-    thresholdUY = ScreenY_Half + ScreenY*0.2
-    thresholdBY = ScreenY_Half - ScreenY*0.2
+    thresholdUY = ScreenY_Half + ScreenY*0.1
+    thresholdBY = ScreenY_Half - ScreenY*0.1
 
 
 def FindAruco(imag):
@@ -45,6 +45,7 @@ def FindAruco(imag):
         hei = h / 2
         xm = xc + wid
         ym = yc - hei
+
         pass
 
     except NameError:
@@ -55,17 +56,19 @@ def Controller():
     try:
         xm = int(xm)
         ym = int(ym)
-        print("ints?")
         isint = True
     except:
-        print("convert to int failure")
         isint = False
     if isint == True:
-        print("int check passed")
         if thresholdRX <= xm:
             print("LEFT SIDE")
         elif thresholdLX >= xm:
             print("RIGHT SIDE")
+        if thresholdUY >= ym: #errors on all the y coord stuff, need to figure out which corner the y coordinate is derived from
+            print("UP SIDE")
+        elif thresholdBY <= ym:
+            print("DOWN SIDE")
+
     else:
         print("int check failed")
         pass
