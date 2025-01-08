@@ -3,6 +3,9 @@ import cv2
 from cv2 import aruco
 import djitellopy as tello
 import asyncio
+import djitellopy as tello
+
+
 
 
 cam = cv2.VideoCapture(0)
@@ -21,31 +24,57 @@ def ScreenSplitLines(imag):
     cv2.line(img, (0, ScreenY_Half), (ScreenX, ScreenY_Half), (255, 0, 0), 5)
     #creates thresholds for drone turning
     global thresholdRX,thresholdLX,thresholdUY,thresholdBY
-    thresholdRX = ScreenX_Half + 50
-    thresholdLX = ScreenX_Half - 50
-    thresholdUY = ScreenY_Half + 50
-    thresholdBY = ScreenY_Half - 50
+    thresholdRX = ScreenX_Half + ScreenX*0.2
+    thresholdLX = ScreenX_Half - ScreenX*0.2
+    thresholdUY = ScreenY_Half + ScreenY*0.2
+    thresholdBY = ScreenY_Half - ScreenY*0.2
 
 
-def FindAruco(imag,markerSize=4,total_markers=1000,draw=True):
-    global gray,key,arucoDict,arucoParam,corners,ids
+def FindAruco(imag):
+
+    global gray,x,y,xm,ym
     gray=cv2.cvtColor(imag,cv2.COLOR_BGR2GRAY)
-    faces = face_cascade.detectMultiScale(gray,scaleFactor=1.1,minNeighbors=5,minSize=(3,3))
+    faces = face_cascade.detectMultiScale(gray,scaleFactor=1.1,minNeighbors=5,minSize=(10,10))
     for (x,y,w,h) in faces:
         cv2.rectangle(imag,(x,y),(x+w,y+h),(0,255,0),2)
     try:
-        print(x,y)
+        #print(x,y)
+        xc = x
+        yc = y
+        wid = w / 2
+        hei = h / 2
+        xm = xc + wid
+        ym = yc - hei
+        pass
+
     except NameError:
         pass
-    #print(corners)
 
-
+def Controller():
+    global xm,ym
+    try:
+        xm = int(xm)
+        ym = int(ym)
+        print("ints?")
+        isint = True
+    except:
+        print("convert to int failure")
+        isint = False
+    if isint == True:
+        print("int check passed")
+        if thresholdRX <= xm:
+            print("LEFT SIDE")
+        elif thresholdLX >= xm:
+            print("RIGHT SIDE")
+    else:
+        print("int check failed")
+        pass
 
 while True:
     ret, img = cam.read()
     ScreenSplitLines(img)
     FindAruco(img)
-
+    Controller()
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
     cv2.imshow("Camera", img)
