@@ -10,8 +10,9 @@ import djitellopy as tello
 
 cam = cv2.VideoCapture(0)
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-
+track = 0
 def ScreenSplitLines(imag):
+    global ScreenX_Half,ScreenY_Half
     size_info = imag.shape
     #print(size_info)
     #maybe Y,X? Don't know, figure out exactly what its passing
@@ -34,28 +35,31 @@ def ScreenSplitLines(imag):
 
 def FindAruco(imag):
 
-    global gray,x,y,w,h,xm,ym
+    global gray,x,y,w,h,xm,ym,track
+
     gray=cv2.cvtColor(imag,cv2.COLOR_BGR2GRAY)
-    faces = face_cascade.detectMultiScale(gray,scaleFactor=1.1,minNeighbors=5,minSize=(10,10))
+    faces = face_cascade.detectMultiScale(gray,scaleFactor=1.1,minNeighbors=5,minSize=(5,5))
     for (x,y,w,h) in faces:
         cv2.rectangle(imag,(x,y),(x+w,y+h),(0,255,0),2)
-    try:
-        #print(x,y)
-        xc = x
-        yc = y
-        wid = w / 2
-        hei = h / 2
-        xm = xc + wid
-        ym = yc + hei
-        print(ym)
+        try:
+            if faces is not None:
+                #print(x,y)
+                xc = x
+                yc = y
+                wid = w / 2
+                hei = h / 2
+                xm = xc + wid
+                ym = yc + hei
+                Controller()
 
-        pass
+            pass
 
-    except NameError:
-        pass
+        except NameError:
+            pass
+    track =0
 
 def Controller():
-    global xm,ym
+    global xm,ym,track
     try:
         xm = int(xm)
         ym = int(ym)
@@ -63,26 +67,25 @@ def Controller():
     except:
         isint = False
     if isint == True:
+        track += 1
         if thresholdRX <= xm:
-            print("LEFT SIDE")
+            print("LEFT SIDE", track)
         elif thresholdLX >= xm:
-            print("RIGHT SIDE")
+            print("RIGHT SIDE",track)
         if thresholdUY > ym: #errors on all the y coord stuff, need to figure out which corner the y coordinate is derived from
-            print("UP SIDE")
+            print("UP SIDE",track)
             pass
         elif thresholdBY < ym:
-            print("DOWN SIDE")
+            print("DOWN SIDE",track)
             pass
 
     else:
-        print("int check failed")
         pass
 
 while True:
     ret, img = cam.read()
     ScreenSplitLines(img)
     FindAruco(img)
-    Controller()
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
     cv2.imshow("Camera", img)
