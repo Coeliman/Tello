@@ -26,13 +26,15 @@ def ScreenSplitLines(imag):
     global thresholdRX,thresholdLX,thresholdUY,thresholdBY
     thresholdRX = ScreenX_Half + ScreenX*0.2
     thresholdLX = ScreenX_Half - ScreenX*0.2
-    thresholdUY = ScreenY_Half + ScreenY*0.1
-    thresholdBY = ScreenY_Half - ScreenY*0.1
+    thresholdUY = ScreenY_Half - ScreenY*0.1
+
+    thresholdBY = ScreenY_Half + ScreenY*0.1
+
 
 
 def FindAruco(imag):
 
-    global gray,x,y,xm,ym
+    global gray,x,y,w,h,xm,ym
     gray=cv2.cvtColor(imag,cv2.COLOR_BGR2GRAY)
     faces = face_cascade.detectMultiScale(gray,scaleFactor=1.1,minNeighbors=5,minSize=(10,10))
     for (x,y,w,h) in faces:
@@ -44,7 +46,8 @@ def FindAruco(imag):
         wid = w / 2
         hei = h / 2
         xm = xc + wid
-        ym = yc - hei
+        ym = yc + hei
+        print(ym)
 
         pass
 
@@ -64,10 +67,12 @@ def Controller():
             print("LEFT SIDE")
         elif thresholdLX >= xm:
             print("RIGHT SIDE")
-        if thresholdUY >= ym: #errors on all the y coord stuff, need to figure out which corner the y coordinate is derived from
+        if thresholdUY > ym: #errors on all the y coord stuff, need to figure out which corner the y coordinate is derived from
             print("UP SIDE")
-        elif thresholdBY <= ym:
+            pass
+        elif thresholdBY < ym:
             print("DOWN SIDE")
+            pass
 
     else:
         print("int check failed")
