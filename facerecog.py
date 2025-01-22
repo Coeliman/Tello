@@ -50,7 +50,7 @@ def FindAruco(imag):
                 hei = h / 2
                 xm = xc + wid
                 ym = yc + hei
-                Controller()
+                #Controller()
 
             pass
 
@@ -84,7 +84,7 @@ def Controller():
 
 while True:
     ret, img = cam.read()
-    ScreenSplitLines(img)
+    ###ScreenSplitLines(img)
     FindAruco(img)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
