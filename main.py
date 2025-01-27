@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 from cv2 import aruco
-import asyncio
+
 import djitellopy as tello
 
 
@@ -31,24 +31,8 @@ cv2.aruco.generateImageMarker(arucoDict,arucoid,tag_size,tag,1)
 tag_name = f"arucoMarkers/" + str(aruco_type) + f"_" + str(arucoid) + f".png"
 cv2.imwrite(tag_name,tag)
 #aruco,tag is the aruco tag
-async def AntiIdle():
-    global loopcount
-    print('prewait')
-    await asyncio.sleep(5)
-    print('postwait')
-    if loopcount%2 == 0:
-        print("MV_FWD SEND")
-        tello.move_forward(5)
-        print("MV FWD CONF")
-    else:
-        print("MB_BWK SEND")
-        tello.move_back(5)
-        print("MW BWK CONF")
-    loopcount+=1
-
-
 def EXIT():
-    tello.land()
+    #tello.land()
     cv2.destroyAllWindows()
 def ScreenSplitLines(imag):
     global ScreenX_Half, ScreenY_Half
@@ -106,9 +90,9 @@ def DroneController():
         pass
 def FindAruco(imag):
     global gray, x, y, w, h, xm, ym, track
-
+    ScreenSplitLines(imag)
     gray = cv2.cvtColor(imag, cv2.COLOR_BGR2GRAY)
-    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(5, 5))
+    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(10, 10))
     for (x, y, w, h) in faces:
         cv2.rectangle(imag, (x, y), (x + w, y + h), (0, 255, 0), 2)
         try:
@@ -127,22 +111,24 @@ def FindAruco(imag):
         except NameError:
             pass
     track = 0
-tello.takeoff()
+#tello.takeoff()
 
 while True:
     if useDrone == False:
         _,img=cam.read()
     elif useDrone == True:
-        cam = tello.get_frame_read().frame
+        frameread = tello.get_frame_read()
+        cam = cv2.cvtColor(frameread.frame,cv2.COLOR_RGB2BGR)
         img = cam
-    FindAruco(img)
+    FindAruco(cam)
     #prints acceleration
-    asyncio.run(AntiIdle())
+    cv2.imshow("Camera", cam)
+
 
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
-    cv2.imshow("Camera",img)
+
 
 
 if cv2.waitKey(0):
