@@ -1,3 +1,5 @@
+from asyncio import wait_for
+
 import numpy as np
 import cv2
 from djitellopy import Tello
@@ -6,6 +8,13 @@ tello = Tello()
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 track = 0
 last_command_time = time.time()
+
+def wait_for_drone_ready():
+    while tello.get_battery() >0:
+        status = tello.get_current_state()
+        if 'in_motion' not in status or not status['in_motion']:
+            break
+        time.sleep(0.1)
 def ScreenSplitLines(imag):
     global ScreenX_Half, ScreenY_Half
     size_info = imag.shape
@@ -53,14 +62,23 @@ def DroneController():
               #  tello.rotate_counter_clockwise(20)
                # last_command_time = time.time()
         if time.time() - last_command_time > 5:
+            current_height = tello.get_height()
             if thresholdUY > ym:  # errors on all the y coord stuff, need to figure out which corner the y coordinate is derived from
-                print("UP SIDE", track)
-                tello.move_up(5)
-                last_command_time = time.time()
+                if current_height < 100:
+                    print(f"Command: Move Up (Current height: {current_height})")
+                    tello.move_up(5) #if this still doesnt work, try using tello.send_control_command('up 5')
+                    wait_for_drone_ready()
+                    last_command_time = time.time()
+                else:
+                    print("Height limit reached, can't move up.")
             elif thresholdBY < ym:
-                print("DOWN SIDE", track)
-                tello.move_down(5)
-                last_command_time = time.time()
+                if current_height > 5:
+                    print(f"Command: Move down (Current height: {current_height})")
+                    tello.move_down(5)
+                    wait_for_drone_ready()
+                    last_command_time = time.time()
+                else:
+                    print("Height limit reached, can't move down.")
     else:
         pass
 def FindAruco(imag):
