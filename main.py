@@ -1,9 +1,11 @@
 import numpy as np
 import cv2
 from djitellopy import Tello
+import time
 tello = Tello()
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 track = 0
+last_command_time = time.time()
 def ScreenSplitLines(imag):
     global ScreenX_Half, ScreenY_Half
     size_info = imag.shape
@@ -32,7 +34,7 @@ def CoordMath(bbox):
         y = (bbox[i - 1][0][0][1] + bbox[i - 1][0][1][1] + bbox[i - 1][0][2][1] + bbox[i - 1][0][3][1]) / 4
 
 def DroneController():
-    global xm, ym, track
+    global xm, ym, track, last_command_time
     try:
         xm = int(xm)
         ym = int(ym)
@@ -41,18 +43,24 @@ def DroneController():
         isint = False
     if isint == True:
         track += 1
-        if thresholdRX <= xm:
-            print("LEFT SIDE", track)
-            tello.rotate_counter_clockwise(10)
-        elif thresholdLX >= xm:
-            print("RIGHT SIDE", track)
-            tello.rotate_clockwise(10)
-       # if thresholdUY > ym:  # errors on all the y coord stuff, need to figure out which corner the y coordinate is derived from
-        #    print("UP SIDE", track)
-         #   tello.move_up(5)
-        #elif thresholdBY < ym:
-         #   print("DOWN SIDE", track)
-          #  tello.move_down(5)
+       # if time.time() - last_command_time > 2:
+        #    if thresholdRX <= xm:
+         #       print("LEFT SIDE", track)
+          #      tello.rotate_clockwise(20)
+           #     last_command_time = time.time()
+            #elif thresholdLX >= xm:
+             #   print("RIGHT SIDE", track)
+              #  tello.rotate_counter_clockwise(20)
+               # last_command_time = time.time()
+        if time.time() - last_command_time > 5:
+            if thresholdUY > ym:  # errors on all the y coord stuff, need to figure out which corner the y coordinate is derived from
+                print("UP SIDE", track)
+                tello.move_up(5)
+                last_command_time = time.time()
+            elif thresholdBY < ym:
+                print("DOWN SIDE", track)
+                tello.move_down(5)
+                last_command_time = time.time()
     else:
         pass
 def FindAruco(imag):
