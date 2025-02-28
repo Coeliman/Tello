@@ -66,7 +66,7 @@ def DroneController():
             if thresholdUY > ym:  # errors on all the y coord stuff, need to figure out which corner the y coordinate is derived from
                 if current_height < 100:
                     print(f"Command: Move Up (Current height: {current_height})")
-                    tello.move_up(5) #if this still doesnt work, try using tello.send_control_command('up 5')
+                    tello.send_control_command('up 5') #if this still doesnt work, try using tello.send_control_command('up 5')
                     wait_for_drone_ready()
                     last_command_time = time.time()
                 else:
@@ -74,7 +74,7 @@ def DroneController():
             elif thresholdBY < ym:
                 if current_height > 5:
                     print(f"Command: Move down (Current height: {current_height})")
-                    tello.move_down(5)
+                    tello.send_control_command('down 5')
                     wait_for_drone_ready()
                     last_command_time = time.time()
                 else:
@@ -109,7 +109,6 @@ while True:
     frameread = tello.get_frame_read()
     cam = cv2.cvtColor(frameread.frame,cv2.COLOR_RGB2BGR)
     FindAruco(cam)
-    #prints acceleration
     cv2.imshow("Camera", cam)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
