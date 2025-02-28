@@ -46,16 +46,16 @@ def DroneController():
         isint = False
     if isint == True:
         track += 1
-        if time.time() - last_command_time > 2:
+        if time.time() - last_command_time > 1:
             if thresholdRX <= xm:
                 print("LEFT SIDE", track)
-                tello.rotate_clockwise(30)
+                tello.rotate_clockwise(20)
                 last_command_time = time.time()
             elif thresholdLX >= xm:
                 print("RIGHT SIDE", track)
-                tello.rotate_counter_clockwise(30)
+                tello.rotate_counter_clockwise(20)
                 last_command_time = time.time()
-        if time.time() - last_command_time > 5:
+        if time.time() - last_command_time > 2:
             current_height = tello.get_height()
             if thresholdUY > ym:  # errors on all the y coord stuff, need to figure out which corner the y coordinate is derived from
                 if current_height < 100:
@@ -99,10 +99,10 @@ def FindAruco(imag):
 tello.connect()
 tello.streamon()
 tello.takeoff()
-time.sleep(0.5)
-tello.send_control_command("setmaxheight 215")
-time.sleep(0.5)
+time.sleep(1)
 tello.move_up(60)
+time.sleep(0.5)
+print(f"Battery Level: {tello.get_battery()}%")
 while True:
     frameread = tello.get_frame_read()
     cam = cv2.cvtColor(frameread.frame,cv2.COLOR_RGB2BGR)
