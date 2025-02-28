@@ -1,4 +1,4 @@
-from asyncio import wait_for
+
 
 import numpy as np
 import cv2
@@ -9,12 +9,6 @@ face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_fronta
 track = 0
 last_command_time = time.time()
 
-def wait_for_drone_ready():
-    while tello.get_battery() >0:
-        status = tello.get_current_state()
-        if 'in_motion' not in status or not status['in_motion']:
-            break
-        time.sleep(0.1)
 def ScreenSplitLines(imag):
     global ScreenX_Half, ScreenY_Half
     size_info = imag.shape
@@ -52,30 +46,30 @@ def DroneController():
         isint = False
     if isint == True:
         track += 1
-       # if time.time() - last_command_time > 2:
-        #    if thresholdRX <= xm:
-         #       print("LEFT SIDE", track)
-          #      tello.rotate_clockwise(20)
-           #     last_command_time = time.time()
-            #elif thresholdLX >= xm:
-             #   print("RIGHT SIDE", track)
-              #  tello.rotate_counter_clockwise(20)
-               # last_command_time = time.time()
+        if time.time() - last_command_time > 2:
+            if thresholdRX <= xm:
+                print("LEFT SIDE", track)
+                tello.rotate_clockwise(30)
+                last_command_time = time.time()
+            elif thresholdLX >= xm:
+                print("RIGHT SIDE", track)
+                tello.rotate_counter_clockwise(30)
+                last_command_time = time.time()
         if time.time() - last_command_time > 5:
             current_height = tello.get_height()
             if thresholdUY > ym:  # errors on all the y coord stuff, need to figure out which corner the y coordinate is derived from
                 if current_height < 100:
                     print(f"Command: Move Up (Current height: {current_height})")
-                    tello.send_control_command('up 5') #if this still doesnt work, try using tello.send_control_command('up 5')
-                    wait_for_drone_ready()
+                    tello.move_up(30)
+
                     last_command_time = time.time()
                 else:
                     print("Height limit reached, can't move up.")
             elif thresholdBY < ym:
                 if current_height > 5:
                     print(f"Command: Move down (Current height: {current_height})")
-                    tello.send_control_command('down 5')
-                    wait_for_drone_ready()
+                    tello.move_down(30)
+
                     last_command_time = time.time()
                 else:
                     print("Height limit reached, can't move down.")
@@ -105,6 +99,10 @@ def FindAruco(imag):
 tello.connect()
 tello.streamon()
 tello.takeoff()
+time.sleep(0.5)
+tello.send_control_command("setmaxheight 215")
+time.sleep(0.5)
+tello.move_up(60)
 while True:
     frameread = tello.get_frame_read()
     cam = cv2.cvtColor(frameread.frame,cv2.COLOR_RGB2BGR)
