@@ -50,7 +50,7 @@ def FindAruco(imag):
                 hei = h / 2
                 xm = xc + wid
                 ym = yc + hei
-                #Controller()
+                Controller()
 
             pass
 
@@ -66,25 +66,21 @@ def Controller():
         isint = True
     except:
         isint = False
-    if isint == True:
-        track += 1
-        if thresholdRX <= xm:
-            print("LEFT SIDE", track)
-        elif thresholdLX >= xm:
-            print("RIGHT SIDE",track)
-        if thresholdUY > ym: #errors on all the y coord stuff, need to figure out which corner the y coordinate is derived from
-            print("UP SIDE",track)
-            pass
-        elif thresholdBY < ym:
-            print("DOWN SIDE",track)
-            pass
+    if thresholdRX <= xm:
+        print("LEFT SIDE", track)
+    elif thresholdLX >= xm:
+        print("RIGHT SIDE", track)
+    if thresholdUY > ym:  # errors on all the y coord stuff, need to figure out which corner the y coordinate is derived from
+        print("UP SIDE", track)
+    elif thresholdBY < ym:
+        print("DOWN SIDE", track)
+    #print(xm," ", ym)
 
-    else:
-        pass
+
 
 while True:
     ret, img = cam.read()
-    ###ScreenSplitLines(img)
+    ScreenSplitLines(img)
     FindAruco(img)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break

@@ -27,15 +27,6 @@ def ScreenSplitLines(imag):
     thresholdLX = ScreenX_Half - ScreenX * 0.2
     thresholdUY = ScreenY_Half - ScreenY * 0.1
     thresholdBY = ScreenY_Half + ScreenY * 0.1
-def CoordMath(bbox):
-    global x
-    global y
-    x = "N"
-    y = "N"
-    for i in range(len(bbox)):
-        x = (bbox[i - 1][0][0][0] + bbox[i - 1][0][1][0] + bbox[i - 1][0][2][0] + bbox[i - 1][0][3][0]) / 4
-        y = (bbox[i - 1][0][0][1] + bbox[i - 1][0][1][1] + bbox[i - 1][0][2][1] + bbox[i - 1][0][3][1]) / 4
-
 def DroneController():
     global xm, ym, track, last_command_time
     try:
@@ -60,6 +51,7 @@ def DroneController():
             if thresholdUY > ym:  # errors on all the y coord stuff, need to figure out which corner the y coordinate is derived from
                 if current_height < 100:
                     print(f"Command: Move Up (Current height: {current_height})")
+                    time.sleep(0.2)
                     tello.move_up(30)
 
                     last_command_time = time.time()
@@ -68,6 +60,7 @@ def DroneController():
             elif thresholdBY < ym:
                 if current_height > 5:
                     print(f"Command: Move down (Current height: {current_height})")
+                    time.sleep(0.2)
                     tello.move_down(30)
 
                     last_command_time = time.time()
