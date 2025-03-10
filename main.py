@@ -27,8 +27,12 @@ def ScreenSplitLines(imag):
     thresholdLX = ScreenX_Half - ScreenX * 0.2
     thresholdUY = ScreenY_Half - ScreenY * 0.1
     thresholdBY = ScreenY_Half + ScreenY * 0.1
+def estimate_distance(perceived_width):
+    real_width = 15 #average adult human face size, should work good enough \ cm
+    focal_len = 1000 #for the surface go school laptop \ 670 for PC, 1000 for drone
+    return (real_width*focal_len)/perceived_width #perceived is in pixels, focal in mm, need to make them the same
 def DroneController():
-    global xm, ym, track, last_command_time
+    global xm, ym, track, last_command_time, distance
     try:
         xm = int(xm)
         ym = int(ym)
@@ -51,7 +55,6 @@ def DroneController():
             if thresholdUY > ym:  # errors on all the y coord stuff, need to figure out which corner the y coordinate is derived from
                 if current_height < 100:
                     print(f"Command: Move Up (Current height: {current_height})")
-                    time.sleep(0.2)
                     tello.move_up(30)
 
                     last_command_time = time.time()
@@ -60,19 +63,27 @@ def DroneController():
             elif thresholdBY < ym:
                 if current_height > 5:
                     print(f"Command: Move down (Current height: {current_height})")
-                    time.sleep(0.2)
                     tello.move_down(30)
 
                     last_command_time = time.time()
                 else:
                     print("Height limit reached, can't move down.")
+            elif distance > 150:
+                tello.move_forward(30)
+                last_command_time = time.time()
+                print("fwd 30")
+
+            elif distance < 70:
+                tello.move_back(30)
+                last_command_time = time.time()
+                print("back 30")
     else:
         pass
 def FindAruco(imag):
     global gray, x, y, w, h, xm, ym, track
     ScreenSplitLines(imag)
     gray = cv2.cvtColor(imag, cv2.COLOR_BGR2GRAY)
-    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(150, 150))
+    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(125, 125))
     for (x, y, w, h) in faces:
         cv2.rectangle(imag, (x, y), (x + w, y + h), (0, 255, 0), 2)
         try:
@@ -84,6 +95,7 @@ def FindAruco(imag):
                 hei = h / 2
                 xm = xc + wid
                 ym = yc + hei
+                distance = estimate_distance(w)
                 DroneController()
             pass
         except NameError:

@@ -10,6 +10,11 @@ import asyncio
 cam = cv2.VideoCapture(0)
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 track = 0
+distance = 70
+
+tello = Tello()
+tello.connect()
+tello.streamon()
 def ScreenSplitLines(imag):
     global ScreenX_Half,ScreenY_Half
     size_info = imag.shape
@@ -62,7 +67,7 @@ def FindAruco(imag):
     track =0
 def estimate_distance(perceived_width):
     real_width = 15 #average adult human face size, should work good enough \ cm
-    focal_len = 670 #for the surface go school laptop \ pix WORKS FOR SCHOOL LAPTOP, NEED TO REMEASURE FOCAL FOR DRONE
+    focal_len = 1000 #for the surface go school laptop \ 670 for PC, 1000 for drone
     return (real_width*focal_len)/perceived_width #perceived is in pixels, focal in mm, need to make them the same
 def Controller():
     global xm,ym,track
@@ -80,12 +85,17 @@ def Controller():
         print("UP SIDE", track)
     elif thresholdBY < ym:
         print("DOWN SIDE", track)
+    if distance > 150:
+        print("GO FORWARD")
+    if distance < 70:
+        print("GO BACKWARD")
     #print(xm," ", ym)
 
 
 
 while True:
-    ret, img = cam.read()
+    frameread = tello.get_frame_read().frame
+    img = cv2.cvtColor(frameread, cv2.COLOR_RGB2BGR)
     ScreenSplitLines(img)
     FindAruco(img)
     if cv2.waitKey(1) & 0xFF == ord('q'):

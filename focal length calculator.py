@@ -7,7 +7,6 @@ import asyncio
 
 known_dist = 30.48
 known_width = 15
-cam = cv2.VideoCapture(0)
 
 def find_obj_width(frm):
     gray = cv2.cvtColor(frm,cv2.COLOR_BGR2GRAY)
@@ -19,9 +18,12 @@ def find_obj_width(frm):
         if w > 50:
             return w
     return None
-
+tello = Tello()
+tello.connect()
+tello.streamon()
 while True:
-    ret, img = cam.read()
+    frameread = tello.get_frame_read()
+    img = cv2.cvtColor(frameread.frame, cv2.COLOR_RGB2BGR)
 
     width_in_pixels = find_obj_width(img)
 
@@ -31,5 +33,4 @@ while True:
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
     cv2.imshow("Camera", img)
-cam.release()
 cv2.destroyAllWindows()
