@@ -107,10 +107,14 @@ tello.takeoff()
 time.sleep(1)
 tello.move_up(60)
 time.sleep(0.5)
+frame_interval = 1 / 20.0
+last_frame_time = time.time()
 print(f"Battery Level: {tello.get_battery()}%")
 while True:
-    frameread = tello.get_frame_read()
-    cam = cv2.cvtColor(frameread.frame,cv2.COLOR_RGB2BGR)
+    current_time = time.time()
+    if current_time - last_frame_time >= frame_interval:
+        frameread = tello.get_frame_read()
+        cam = cv2.cvtColor(frameread.frame,cv2.COLOR_RGB2BGR)
     FindAruco(cam)
     cv2.imshow("Camera", cam)
     if cv2.waitKey(1) & 0xFF == ord('q'):
