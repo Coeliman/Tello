@@ -1,5 +1,3 @@
-
-
 import numpy as np
 import cv2
 from djitellopy import Tello
@@ -50,8 +48,19 @@ def DroneController():
                 print("RIGHT SIDE", track)
                 tello.rotate_counter_clockwise(20)
                 last_command_time = time.time()
+            elif distance > 150:
+                tello.move_forward(30)
+                last_command_time = time.time()
+                print("fwd 30")
+
+            elif distance < 70:
+                tello.move_back(30)
+                last_command_time = time.time()
+                print("back 30")
+
         if time.time() - last_command_time > 2:
             current_height = tello.get_height()
+            print(distance)
             if thresholdUY > ym:  # errors on all the y coord stuff, need to figure out which corner the y coordinate is derived from
                 if current_height < 100:
                     print(f"Command: Move Up (Current height: {current_height})")
@@ -68,22 +77,15 @@ def DroneController():
                     last_command_time = time.time()
                 else:
                     print("Height limit reached, can't move down.")
-            elif distance > 150:
-                tello.move_forward(30)
-                last_command_time = time.time()
-                print("fwd 30")
 
-            elif distance < 70:
-                tello.move_back(30)
-                last_command_time = time.time()
-                print("back 30")
+
     else:
         pass
 def FindAruco(imag):
-    global gray, x, y, w, h, xm, ym, track
+    global gray, x, y, w, h, xm, ym, track, distance
     ScreenSplitLines(imag)
     gray = cv2.cvtColor(imag, cv2.COLOR_BGR2GRAY)
-    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(125, 125))
+    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(25, 25))
     for (x, y, w, h) in faces:
         cv2.rectangle(imag, (x, y), (x + w, y + h), (0, 255, 0), 2)
         try:
@@ -115,7 +117,7 @@ while True:
     if current_time - last_frame_time >= frame_interval:
         frameread = tello.get_frame_read()
         cam = cv2.cvtColor(frameread.frame,cv2.COLOR_RGB2BGR)
-    FindAruco(cam)
-    cv2.imshow("Camera", cam)
+        FindAruco(cam)
+        cv2.imshow("Camera", cam)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
