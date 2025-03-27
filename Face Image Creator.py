@@ -15,15 +15,15 @@ while True:
     gray= cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     faces = face_cascade.detectMultiScale(gray,scaleFactor=1.1,minNeighbors=5,minSize=(100,100))
     for (x,y,w,h) in faces:
-        count=count+1 #DO NOT UPLOAD MY ACTUAL USER TO GIT
-        cv2.imwrite(r"C:\Users\USER | DO NOT UPLOAD TO GET\Documents\Tello\Datasets/User."+str(id)+"."+str(count)+".jpg", gray[y:y+h, x:x+w])
+        count=count+1
+        cv2.imwrite(r"C:\Users\Elijah Goris\Documents\Tello\Datasets/User."+str(id)+"."+str(count)+".jpg", gray[y:y+h, x:x+w])
         cv2.rectangle(frame, (x,y), (x+w, y+h), (50,50,255), 1)
 
     cv2.imshow("Frame",frame)
 
     k=cv2.waitKey(1)
     print(count)
-    if count>500:
+    if count>1000:
         break
 
 video.release()

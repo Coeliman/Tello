@@ -10,7 +10,7 @@ facedetect = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalf
 recognizer = cv2.face.LBPHFaceRecognizer_create()
 recognizer.read("Trainer.yml")
 
-name_list = ["", "MILES, SELF DESTRUCT ACTIVATED"]
+name_list = ["", "User"]
 
 
 while True:
@@ -19,7 +19,7 @@ while True:
     faces = facedetect.detectMultiScale(gray,scaleFactor=1.1,minNeighbors=5,minSize=(5,5))
     for (x, y, w, h) in faces:
         serial, conf = recognizer.predict(gray[y:y + h, x:x + w])
-        if conf < 50:
+        if conf < 75:
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 1)
             cv2.rectangle(frame, (x, y), (x + w, y + h), (50, 50, 255), 2)
             cv2.rectangle(frame, (x, y - 40), (x + w, y), (50, 50, 255), -1)

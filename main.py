@@ -6,6 +6,10 @@ tello = Tello()
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 track = 0
 last_command_time = time.time()
+recognizer = cv2.face.LBPHFaceRecognizer_create()
+recognizer.read("Trainer.yml")
+
+name_list = ["", "User"]
 
 def ScreenSplitLines(imag):
     global ScreenX_Half, ScreenY_Half
@@ -38,56 +42,62 @@ def DroneController():
     except:
         isint = False
     if isint == True:
-        track += 1
-        if time.time() - last_command_time > 1:
-            if thresholdRX <= xm:
-                print("LEFT SIDE", track)
-                tello.rotate_clockwise(20)
-                last_command_time = time.time()
-            elif thresholdLX >= xm:
-                print("RIGHT SIDE", track)
-                tello.rotate_counter_clockwise(20)
-                last_command_time = time.time()
-            elif distance > 150:
-                tello.move_forward(30)
-                last_command_time = time.time()
-                print("fwd 30")
-
-            elif distance < 70:
-                tello.move_back(30)
-                last_command_time = time.time()
-                print("back 30")
-
-        if time.time() - last_command_time > 2:
-            current_height = tello.get_height()
-            print(distance)
-            if thresholdUY > ym:  # errors on all the y coord stuff, need to figure out which corner the y coordinate is derived from
-                if current_height < 100:
-                    print(f"Command: Move Up (Current height: {current_height})")
-                    tello.move_up(30)
-
+        if conf < 75:
+            cv2.putText(cam, name_list[serial], (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
+            track += 1
+            if time.time() - last_command_time > 1:
+                if thresholdRX <= xm:
+                    print("LEFT SIDE", track)
+                    tello.rotate_clockwise(20)
                     last_command_time = time.time()
-                else:
-                    print("Height limit reached, can't move up.")
-            elif thresholdBY < ym:
-                if current_height > 5:
-                    print(f"Command: Move down (Current height: {current_height})")
-                    tello.move_down(30)
-
+                elif thresholdLX >= xm:
+                    print("RIGHT SIDE", track)
+                    tello.rotate_counter_clockwise(20)
                     last_command_time = time.time()
-                else:
-                    print("Height limit reached, can't move down.")
+                elif distance > 150:
+                    tello.move_forward(30)
+                    last_command_time = time.time()
+                    print("fwd 30")
+
+                elif distance < 70:
+                    tello.move_back(30)
+                    last_command_time = time.time()
+                    print("back 30")
+        else:
+            cv2.putText(cam, "Unknown", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
+
+            if time.time() - last_command_time > 2:
+                current_height = tello.get_height()
+                print(distance)
+                if thresholdUY > ym:  # errors on all the y coord stuff, need to figure out which corner the y coordinate is derived from
+                    if current_height < 100:
+                        print(f"Command: Move Up (Current height: {current_height})")
+                        tello.move_up(30)
+
+                        last_command_time = time.time()
+                    else:
+                        print("Height limit reached, can't move up.")
+                elif thresholdBY < ym:
+                    if current_height > 5:
+                        print(f"Command: Move down (Current height: {current_height})")
+                        tello.move_down(30)
+
+                        last_command_time = time.time()
+                    else:
+                        print("Height limit reached, can't move down.")
+
 
 
     else:
         pass
 def FindAruco(imag):
-    global gray, x, y, w, h, xm, ym, track, distance
+    global gray, x, y, w, h, xm, ym, track, distance,serial,conf
     ScreenSplitLines(imag)
     gray = cv2.cvtColor(imag, cv2.COLOR_BGR2GRAY)
-    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(25, 25))
+    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(5, 5))
     for (x, y, w, h) in faces:
         cv2.rectangle(imag, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        serial, conf = recognizer.predict(gray[y:y + h, x:x + w])
         try:
             if faces is not None:
                 # print(x,y)
