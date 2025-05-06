@@ -23,7 +23,7 @@ while True:
 
     k=cv2.waitKey(1)
     print(count)
-    if count>1000:
+    if count>500:
         break
 
 video.release()

@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 from djitellopy import Tello
+import asyncio
 import time
 tello = Tello()
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
@@ -8,9 +9,8 @@ track = 0
 last_command_time = time.time()
 recognizer = cv2.face.LBPHFaceRecognizer_create()
 recognizer.read("Trainer.yml")
-
 name_list = ["", "User"]
-
+vert_move = True
 def ScreenSplitLines(imag):
     global ScreenX_Half, ScreenY_Half
     size_info = imag.shape
@@ -33,8 +33,20 @@ def estimate_distance(perceived_width):
     real_width = 15 #average adult human face size, should work good enough \ cm
     focal_len = 1000 #for the surface go school laptop \ 670 for PC, 1000 for drone
     return (real_width*focal_len)/perceived_width #perceived is in pixels, focal in mm, need to make them the same
+async def move_up():
+    tello.move_up(30)
+async def move_down():
+    tello.move_down(30)
+async def move_forward():
+    tello.move_forward(30)
+async def move_back():
+    tello.move_back(30)
+async def rotate_CCW():
+    tello.rotate_counter_clockwise(20)
+async def rotate_CW():
+    tello.rotate_clockwise(20)
 def DroneController():
-    global xm, ym, track, last_command_time, distance
+    global xm, ym, track, last_command_time, distance, vert_move
     try:
         xm = int(xm)
         ym = int(ym)
@@ -42,49 +54,55 @@ def DroneController():
     except:
         isint = False
     if isint == True:
-        if conf < 75:
+        if conf > 40:
             cv2.putText(cam, name_list[serial], (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
             track += 1
             if time.time() - last_command_time > 1:
                 if thresholdRX <= xm:
                     print("LEFT SIDE", track)
-                    tello.rotate_clockwise(20)
+
                     last_command_time = time.time()
+                    asyncio.run(rotate_CW())
                 elif thresholdLX >= xm:
                     print("RIGHT SIDE", track)
-                    tello.rotate_counter_clockwise(20)
-                    last_command_time = time.time()
-                elif distance > 150:
-                    tello.move_forward(30)
-                    last_command_time = time.time()
-                    print("fwd 30")
 
-                elif distance < 70:
-                    tello.move_back(30)
                     last_command_time = time.time()
+                    asyncio.run(rotate_CCW())
+                elif distance > 250:
+
+                    last_command_time = time.time()
+                    asyncio.run(move_forward())
+                    print("fwd 30")
+                elif distance < 120:
+                    last_command_time = time.time()
+                    asyncio.run(move_back())
+
                     print("back 30")
+            if time.time() - last_command_time > 10:
+                current_height = tello.get_height()
+                print(distance)
+                if vert_move:
+                    if thresholdUY > ym:  # errors on all the y coord stuff, need to figure out which corner the y coordinate is derived from
+                        if current_height < 100:
+                            last_command_time = time.time()
+                            print(f"Command: Move Up (Current height: {current_height})")
+                            asyncio.run(move_up())
+
+
+                        else:
+                            print("Height limit reached, can't move up.")
+                    elif thresholdBY < ym:
+                        if current_height > 5:
+                            print(f"Command: Move down (Current height: {current_height})")
+                            last_command_time = time.time()
+                            asyncio.run(move_down())
+
+
+                        else:
+                            print("Height limit reached, can't move down.")
         else:
             cv2.putText(cam, "Unknown", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
 
-            if time.time() - last_command_time > 2:
-                current_height = tello.get_height()
-                print(distance)
-                if thresholdUY > ym:  # errors on all the y coord stuff, need to figure out which corner the y coordinate is derived from
-                    if current_height < 100:
-                        print(f"Command: Move Up (Current height: {current_height})")
-                        tello.move_up(30)
-
-                        last_command_time = time.time()
-                    else:
-                        print("Height limit reached, can't move up.")
-                elif thresholdBY < ym:
-                    if current_height > 5:
-                        print(f"Command: Move down (Current height: {current_height})")
-                        tello.move_down(30)
-
-                        last_command_time = time.time()
-                    else:
-                        print("Height limit reached, can't move down.")
 
 
 
@@ -116,9 +134,9 @@ def FindAruco(imag):
 tello.connect()
 tello.streamon()
 tello.takeoff()
-time.sleep(1)
+time.sleep(2)
 tello.move_up(60)
-time.sleep(0.5)
+time.sleep(2)
 frame_interval = 1 / 20.0
 last_frame_time = time.time()
 print(f"Battery Level: {tello.get_battery()}%")
